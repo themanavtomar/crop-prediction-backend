@@ -56,3 +56,4 @@ async def predict_crop(cropInfo: cropInfo):
     print(prediction)
 
     return { "result" : prediction[0]}
+
