@@ -57,3 +57,10 @@ async def predict_crop(cropInfo: cropInfo):
 
     return { "result" : prediction[0]}
 
+
+@app.post('/recommend')
+async def recommend_crops(crop_info: cropInfo):
+    # Perform recommendation logic based on the provided crop_info
+    # You can use your trained model or any other recommendation algorithm here
+    recommended_crops = ['rice', 'wheat', 'maize', ...]  # List of recommended crops
+    return {'recommended_crops': recommended_crops}
