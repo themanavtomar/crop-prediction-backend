@@ -13,6 +13,7 @@ import pandas as pd #to create dataframe object which allow us to work with tabu
 import pickle #pickle provides a way to serialize and deserialize python objects serialize is a way of converting an object into a format that can be stored or transmitted while deserialize is a way to convert serialize data back to object
 #it save our ml model as files which can be loaded and used in fastapi application
 #when we tarin our ml model we fit it on a dataset and obtain a set of learned parameters that can be used to make prediction on new data these learned parameters can be saved as a file which can then be loaded and used to make prediction on new data
+import requests #it is used to make http request to our chatbot api
 app = FastAPI()  #when we call FastAPI() we create a new FastAPI application which is used to define our API endpoints, middleware and other configuration settings
 
 origins = ["*"] #it is a parameter that can be passed to the fastapi instance to configure CORS settings
@@ -54,6 +55,56 @@ async def predict_crop(cropInfo: cropInfo):
     prediction = better_model.predict(pd.DataFrame([[nitrogen_value,phosphorus_value,potassium_value,temperature_value, humidity_value,ph_value,rainfall_value]],
                                                    columns = ['N','P','K','temperature','humidity','ph','rainfall']))
     print(prediction)
+    url = "URL" #url of chatbot api, Change it to proper URL . URL for local is url = "http://3.88.181.187:8080/v1/"
+    search = (
+        "Hey ChatGpt can u help to suggest me crop on basis of data I have in farm Nitrogn"
+        + str(nitrogen_value)
+        + "ppm, Phosphorous "
+        + str(phosphorus_value)
+        + "ppm, Potasium "
+        + str(potassium_value)
+        + "ppm, Temperature "
+        + str(temperature_value)
+        + " C, humidity "
+        + str(humidity_value)
+        + "%, ph "
+        + str(ph_value)
+        + ", rainfall "
+        + str(rainfall_value)
+        + "mm. Give only one-word crop name and no other details."
+    )
+    data = {
+            "model": "gpt-4",
+            "messages": [{"role": "user", "content": search}]
+            }
+    res = requests.post(url,json=data)
 
+    if res.status_code == 200:
+        return {"result": res.json()["choices"][0]["message"]["content"]};
+    search = (
+        "Hey ChatGpt can u help to suggest me crop on basis of data I have in farm Nitrogn"
+        + str(nitrogen_value)
+        + "ppm, Phosphorous "
+        + str(phosphorus_value)
+        + "ppm, Potasium "
+        + str(potassium_value)
+        + "ppm, Temperature "
+        + str(temperature_value)
+        + " C, humidity "
+        + str(humidity_value)
+        + "%, ph "
+        + str(ph_value)
+        + ", rainfall "
+        + str(rainfall_value)
+        + "mm. Give only one-word crop name and no other details."
+    )
+    data = {
+            "model": "gpt-4",
+            "messages": [{"role": "user", "content": search}]
+            }
+    res = requests.post(url,json=data)
+
+    if res.status_code == 200:
+        return {"result": res.json()["choices"][0]["message"]["content"]};
     return { "result" : prediction[0]}
 
