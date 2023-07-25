@@ -70,7 +70,7 @@ uvicorn main:app --reload
 
 ## Contributing
 
-Refer to the contribution guidlines [here](https://github.com/abhijeet141/CropForesight#-contributing)
+Refer to the contribution guidelines [here](https://github.com/abhijeet141/CropForesight#-contributing)
 
 
 ## License
