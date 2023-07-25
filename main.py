@@ -16,33 +16,37 @@ import pickle #pickle provides a way to serialize and deserialize python objects
 import requests #it is used to make http request to our chatbot api
 app = FastAPI()  #when we call FastAPI() we create a new FastAPI application which is used to define our API endpoints, middleware and other configuration settings
 
-origins = ["*"] #it is a parameter that can be passed to the fastapi instance to configure CORS settings
-#origin is a list of string that represents the allowed origin for cross origin request
-#by default cross origin request is blocked so origins=["*"] means any origins will be allowed to make cross origin request
+origins = [
+    "*"
+]  # it is a parameter that can be passed to the fastapi instance to configure CORS settings
+# origin is a list of string that represents the allowed origin for cross origin request
+# by default cross origin request is blocked so origins=["*"] means any origins will be allowed to make cross origin request
 # * is a wildcard character that represents any origin
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins = origins,
-    allow_credentials = True,
-    allow_methods = ["*"],
-    allow_headers = ["*"],
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
-cropRecomendation = pd.read_csv('./Crop_recommendation.csv')
+cropRecomendation = pd.read_csv("./Crop_recommendation.csv")
 
-better_model = pickle.load(open('./crop_recomendation.pkl','rb'))
+better_model = pickle.load(open("./crop_recomendation.pkl", "rb"))
+
 
 class cropInfo(BaseModel):
     nitrogen: int
     phosphorus: int
-    potassium:int
+    potassium: int
     temperature: int
     humidity: int
     ph: int
     rainfall: int
 
-@app.post('/predict')
+
+@app.post("/predict")
 async def predict_crop(cropInfo: cropInfo):
     nitrogen_value = cropInfo.nitrogen
     phosphorus_value = cropInfo.phosphorus
@@ -52,8 +56,22 @@ async def predict_crop(cropInfo: cropInfo):
     ph_value = cropInfo.ph
     rainfall_value = cropInfo.rainfall
 
-    prediction = better_model.predict(pd.DataFrame([[nitrogen_value,phosphorus_value,potassium_value,temperature_value, humidity_value,ph_value,rainfall_value]],
-                                                   columns = ['N','P','K','temperature','humidity','ph','rainfall']))
+    prediction = better_model.predict(
+        pd.DataFrame(
+            [
+                [
+                    nitrogen_value,
+                    phosphorus_value,
+                    potassium_value,
+                    temperature_value,
+                    humidity_value,
+                    ph_value,
+                    rainfall_value,
+                ]
+            ],
+            columns=["N", "P", "K", "temperature", "humidity", "ph", "rainfall"],
+        )
+    )
     print(prediction)
     url = "URL" #url of chatbot api, Change it to proper URL . URL for local is url = "http://3.88.181.187:8080/v1/"
     search = (
