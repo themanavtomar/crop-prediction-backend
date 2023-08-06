@@ -1,3 +1,9 @@
+from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel
+import pandas as pd
+import pickle
+
 from fastapi import FastAPI  # it imports FastAPI class from the fastapi module
 from fastapi.middleware.cors import (
     CORSMiddleware,
@@ -29,6 +35,9 @@ origins = [
 # by default cross origin request is blocked so origins=["*"] means any origins will be allowed to make cross origin request
 # * is a wildcard character that represents any origin
 
+app = FastAPI()
+
+origins = ["*"]
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
@@ -37,12 +46,16 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
+cropRecommendation = pd.read_csv('./Crop_recommendation.csv')
+
+better_model = pickle.load(open('./crop_recommendation.pkl', 'rb'))
 cropRecomendation = pd.read_csv("./Crop_recommendation.csv")
 
 better_model = pickle.load(open("./crop_recomendation.pkl", "rb"))
 
 
-class cropInfo(BaseModel):
+class CropInfo(BaseModel):
     nitrogen: int
     phosphorus: int
     potassium: int
@@ -51,6 +64,25 @@ class cropInfo(BaseModel):
     ph: int
     rainfall: int
 
+
+@app.post('/predict')
+async def predict_crop(crop_info: CropInfo):
+    try:
+        nitrogen_value = crop_info.nitrogen
+        phosphorus_value = crop_info.phosphorus
+        potassium_value = crop_info.potassium
+        temperature_value = crop_info.temperature
+        humidity_value = crop_info.humidity
+        ph_value = crop_info.ph
+        rainfall_value = crop_info.rainfall
+
+        prediction = better_model.predict(pd.DataFrame([[nitrogen_value, phosphorus_value, potassium_value, temperature_value, humidity_value, ph_value, rainfall_value]],
+                                                       columns=['N', 'P', 'K', 'temperature', 'humidity', 'ph', 'rainfall']))
+        print(prediction)
+
+        return {"result": prediction[0]}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 @app.post("/predict")
 async def predict_crop(cropInfo: cropInfo):
