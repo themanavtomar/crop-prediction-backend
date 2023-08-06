@@ -1,20 +1,26 @@
-from fastapi import FastAPI #it imports FastAPI class from the fastapi module
-from fastapi.middleware.cors import CORSMiddleware #it imports CORSMiddleware from fastapi.middleware.cors module
-#CORS-CrossOriginResourceSharing it is a security mechanism implemented by web browser to restrict cross origin request from web application
-#When a web browser is running on one origin(domain,protocol and port) and it tries to access resource from other origin the browser will block the request by default
-#This is to prevent security vulnerabilities
-#CORSMiddleware class is a middleware that is used with fastApi to enable CORS for our web application
-#By adding this middleware to our fast api application we can configure our api to accept cross origin request from specific origin
-from pydantic import BaseModel #it imports basemodel class from pydentic module
-#pydentic provides data validation and setting management
-#BaseModel is a baseclass that we can inherit from to define our own data model
-#We use this to define the structure of the data that our API expects to receive as an input or to define the structure of data that our api will return as output
-import pandas as pd #to create dataframe object which allow us to work with tabular data
-import pickle #pickle provides a way to serialize and deserialize python objects serialize is a way of converting an object into a format that can be stored or transmitted while deserialize is a way to convert serialize data back to object
-#it save our ml model as files which can be loaded and used in fastapi application
-#when we tarin our ml model we fit it on a dataset and obtain a set of learned parameters that can be used to make prediction on new data these learned parameters can be saved as a file which can then be loaded and used to make prediction on new data
-import requests #it is used to make http request to our chatbot api
-app = FastAPI()  #when we call FastAPI() we create a new FastAPI application which is used to define our API endpoints, middleware and other configuration settings
+from fastapi import FastAPI  # it imports FastAPI class from the fastapi module
+from fastapi.middleware.cors import (
+    CORSMiddleware,
+)  # it imports CORSMiddleware from fastapi.middleware.cors module
+
+# CORS-CrossOriginResourceSharing it is a security mechanism implemented by web browser to restrict cross origin request from web application
+# When a web browser is running on one origin(domain,protocol and port) and it tries to access resource from other origin the browser will block the request by default
+# This is to prevent security vulnerabilities
+# CORSMiddleware class is a middleware that is used with fastApi to enable CORS for our web application
+# By adding this middleware to our fast api application we can configure our api to accept cross origin request from specific origin
+from pydantic import BaseModel  # it imports basemodel class from pydentic module
+
+# pydentic provides data validation and setting management
+# BaseModel is a baseclass that we can inherit from to define our own data model
+# We use this to define the structure of the data that our API expects to receive as an input or to define the structure of data that our api will return as output
+import pandas as pd  # to create dataframe object which allow us to work with tabular data
+import pickle  # pickle provides a way to serialize and deserialize python objects serialize is a way of converting an object into a format that can be stored or transmitted while deserialize is a way to convert serialize data back to object
+
+# it save our ml model as files which can be loaded and used in fastapi application
+# when we tarin our ml model we fit it on a dataset and obtain a set of learned parameters that can be used to make prediction on new data these learned parameters can be saved as a file which can then be loaded and used to make prediction on new data
+app = (
+    FastAPI()
+)  # when we call FastAPI() we create a new FastAPI application which is used to define our API endpoints, middleware and other configuration settings
 
 origins = [
     "*"
@@ -73,56 +79,5 @@ async def predict_crop(cropInfo: cropInfo):
         )
     )
     print(prediction)
-    url = "URL" #url of chatbot api, Change it to proper URL . URL for local is url = "http://3.88.181.187:8080/v1/"
-    search = (
-        "Hey ChatGpt can u help to suggest me crop on basis of data I have in farm Nitrogn"
-        + str(nitrogen_value)
-        + "ppm, Phosphorous "
-        + str(phosphorus_value)
-        + "ppm, Potasium "
-        + str(potassium_value)
-        + "ppm, Temperature "
-        + str(temperature_value)
-        + " C, humidity "
-        + str(humidity_value)
-        + "%, ph "
-        + str(ph_value)
-        + ", rainfall "
-        + str(rainfall_value)
-        + "mm. Give only one-word crop name and no other details."
-    )
-    data = {
-            "model": "gpt-4",
-            "messages": [{"role": "user", "content": search}]
-            }
-    res = requests.post(url,json=data)
 
-    if res.status_code == 200:
-        return {"result": res.json()["choices"][0]["message"]["content"]};
-    search = (
-        "Hey ChatGpt can u help to suggest me crop on basis of data I have in farm Nitrogn"
-        + str(nitrogen_value)
-        + "ppm, Phosphorous "
-        + str(phosphorus_value)
-        + "ppm, Potasium "
-        + str(potassium_value)
-        + "ppm, Temperature "
-        + str(temperature_value)
-        + " C, humidity "
-        + str(humidity_value)
-        + "%, ph "
-        + str(ph_value)
-        + ", rainfall "
-        + str(rainfall_value)
-        + "mm. Give only one-word crop name and no other details."
-    )
-    data = {
-            "model": "gpt-4",
-            "messages": [{"role": "user", "content": search}]
-            }
-    res = requests.post(url,json=data)
-
-    if res.status_code == 200:
-        return {"result": res.json()["choices"][0]["message"]["content"]};
-    return { "result" : prediction[0]}
-
+    return {"result": prediction[0]}
